@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Battery Home Icon</string>
+    <string name="pref_copyright_description">Copyright © 2014 Mohammad Abu-Garbeyyeh\nView more apps and modules</string>
+    <string name="current_hsv_value">HSV:</string>
+    <string name="action_apply">Apply</string>
+    <string name="padding_title">Padding</string>
+    <string name="padding_summary">Padding for portrait mode</string>
+    <string name="padding_landscape_title">Landscape padding</string>
+    <string name="padding_landscape_summary">Padding for landscape mode</string>
+    <string name="stroke_title">Circle thickness</string>
+    <string name="stroke_summary">Thickness of the line used in the circle</string>
+    <string name="charging_animation_title">Charging animation</string>
+    <string name="charging_animation_summary">Enable the charging animation, this may require you to unplug or replug to apply</string>
+    <string name="battery_percentage_title">Battery percentage</string>
+    <string name="battery_percentage_summary">Show battery percentage in the center of the circle</string>
+    <string name="hide_battery_icon_title">Hide battery icon</string>
+    <string name="hide_battery_icon_summary">Hide the stock battery icon from the status bar. Toggling this requires a reboot</string>
+    <string name="menu_playstore">Play Store</string>
+    <string name="menu_xposed">Xposed Modules</string>
+
+    <string-array name="my_apps" translatable="false">
+        <item>@string/menu_playstore</item>
+        <item>@string/menu_xposed</item>
+    </string-array>
+
+</resources>

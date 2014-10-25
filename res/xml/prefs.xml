@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <Preference
+        android:key="copyright_key"
+        android:summary="@string/pref_copyright_description"
+        android:title="@string/app_name" />
+
+    <CheckBoxPreference
+        android:key="hide_battery"
+        android:summary="@string/hide_battery_icon_summary"
+        android:title="@string/hide_battery_icon_title" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="charging_animation"
+        android:summary="@string/charging_animation_summary"
+        android:title="@string/charging_animation_title" />
+    <CheckBoxPreference
+        android:key="battery_percentage"
+        android:summary="@string/battery_percentage_summary"
+        android:title="@string/battery_percentage_title" />
+
+    <com.mohammadag.batteryhomebutton.SliderPreference
+        android:defaultValue="0.7"
+        android:key="padding"
+        android:summary="@string/padding_summary"
+        android:title="@string/padding_title" />
+    <com.mohammadag.batteryhomebutton.SliderPreference
+        android:defaultValue="0.5"
+        android:key="padding_landscape"
+        android:summary="@string/padding_landscape_summary"
+        android:title="@string/padding_landscape_title" />
+    <com.mohammadag.batteryhomebutton.SliderPreference
+        android:defaultValue="0.1"
+        android:key="stroke_width"
+        android:summary="@string/stroke_summary"
+        android:title="@string/stroke_title" />
+
+</PreferenceScreen>
