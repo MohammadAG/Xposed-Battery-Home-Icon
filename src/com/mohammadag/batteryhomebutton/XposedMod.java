@@ -29,6 +29,8 @@ public class XposedMod implements IXposedHookLoadPackage, IXposedHookInitPackage
 
 	private XSharedPreferences mPrefs;
 
+	protected Context mContext;
+
 	@Override
 	public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
 		if (!lpparam.packageName.equals("com.android.systemui"))
@@ -92,55 +94,13 @@ public class XposedMod implements IXposedHookLoadPackage, IXposedHookInitPackage
 		});
 		XposedBridge.hookAllConstructors(NavigationBarView, new XC_MethodHook() {
 			@Override
-			protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-
-			}
-
-			@Override
 			protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 				if (mBroadcastRegistered)
 					return;
 
 				View v = (View) param.thisObject;
-
-				IntentFilter iF = new IntentFilter();
-				iF.addAction(Intent.ACTION_BATTERY_CHANGED);
-				iF.addAction(Intent.ACTION_POWER_CONNECTED);
-				iF.addAction(Intent.ACTION_POWER_DISCONNECTED);
-				iF.addAction(Intent.ACTION_SCREEN_ON);
-				iF.addAction(Intent.ACTION_SCREEN_OFF);
-				iF.addAction(PreferencesActivity.INTENT_SETTINGS_CHANGED);
-				v.getContext().registerReceiver(new BroadcastReceiver() {
-					@Override
-					public void onReceive(Context arg0, Intent intent) {
-						if (Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
-							// No idea what the f this is, but AOSP does it so it must be awesome
-							int level = (int) (100f
-									* intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0)
-									/ intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100));
-							if (mBatteryDrawable != null)
-								mBatteryDrawable.setBatteryLevel(level);
-						} else if (Intent.ACTION_POWER_CONNECTED.equals(intent.getAction())) {
-							if (mBatteryDrawable != null)
-								mBatteryDrawable.setBatteryCharging(true);
-						} else if (Intent.ACTION_POWER_DISCONNECTED.equals(intent.getAction())) {
-							if (mBatteryDrawable != null)
-								mBatteryDrawable.setBatteryCharging(false);
-						} else if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
-							if (mBatteryDrawable != null)
-								mBatteryDrawable.setScreenOn(true);
-						} else if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
-							if (mBatteryDrawable != null)
-								mBatteryDrawable.setScreenOn(false);
-						} else if (PreferencesActivity.INTENT_SETTINGS_CHANGED.equals(intent.getAction())) {
-							if (mBatteryDrawable != null) {
-								reloadSettings();
-							}
-						}
-					}
-				}, iF);
-
-				mBroadcastRegistered = true;
+				if (mBatteryDrawable != null)
+					registerReceiverIfNeeded(v.getContext());
 			}
 		});
 
@@ -178,7 +138,52 @@ public class XposedMod implements IXposedHookLoadPackage, IXposedHookInitPackage
 		if (mBatteryDrawable == null) {
 			mBatteryDrawable = new BatteryDrawable(view);
 			reloadSettings();
+			registerReceiverIfNeeded(view.getContext());
 		}
+	}
+
+	private void registerReceiverIfNeeded(Context context) {
+		if (mBroadcastRegistered)
+			return;
+
+		IntentFilter iF = new IntentFilter();
+		iF.addAction(Intent.ACTION_BATTERY_CHANGED);
+		iF.addAction(Intent.ACTION_POWER_CONNECTED);
+		iF.addAction(Intent.ACTION_POWER_DISCONNECTED);
+		iF.addAction(Intent.ACTION_SCREEN_ON);
+		iF.addAction(Intent.ACTION_SCREEN_OFF);
+		iF.addAction(PreferencesActivity.INTENT_SETTINGS_CHANGED);
+		context.registerReceiver(new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context arg0, Intent intent) {
+				if (Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
+					// No idea what the f this is, but AOSP does it so it must be awesome
+					int level = (int) (100f
+							* intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0)
+							/ intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100));
+					if (mBatteryDrawable != null)
+						mBatteryDrawable.setBatteryLevel(level);
+				} else if (Intent.ACTION_POWER_CONNECTED.equals(intent.getAction())) {
+					if (mBatteryDrawable != null)
+						mBatteryDrawable.setBatteryCharging(true);
+				} else if (Intent.ACTION_POWER_DISCONNECTED.equals(intent.getAction())) {
+					if (mBatteryDrawable != null)
+						mBatteryDrawable.setBatteryCharging(false);
+				} else if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
+					if (mBatteryDrawable != null)
+						mBatteryDrawable.setScreenOn(true);
+				} else if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
+					if (mBatteryDrawable != null)
+						mBatteryDrawable.setScreenOn(false);
+				} else if (PreferencesActivity.INTENT_SETTINGS_CHANGED.equals(intent.getAction())) {
+					if (mBatteryDrawable != null) {
+						reloadSettings();
+					}
+				}
+			}
+		}, iF);
+
+		mBroadcastRegistered = true;
 	}
 
 	@Override
@@ -190,15 +195,31 @@ public class XposedMod implements IXposedHookLoadPackage, IXposedHookInitPackage
 		if (!prefs.getBoolean("hide_battery", false))
 			return;
 
-		resparam.res.hookLayout(resparam.res.getIdentifier("super_status_bar", "layout",
-				"com.android.systemui"), new XC_LayoutInflated() {
-			@Override
-			public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {
-				View view = liparam.view.findViewById(liparam.res.getIdentifier("battery",
-						"id", "com.android.systemui"));
+		int resId = 0;
 
-				view.setVisibility(View.GONE);
-			}
-		});
+		if (Build.MANUFACTURER.toLowerCase(Locale.getDefault()).equals("sony")) {
+			resId = resparam.res.getIdentifier("msim_super_status_bar", "layout",
+					"com.android.systemui");
+		}
+
+		if (resId == 0) {
+			resId = resparam.res.getIdentifier("super_status_bar", "layout",
+					"com.android.systemui");
+		}
+
+		try {
+			resparam.res.hookLayout(resId, new XC_LayoutInflated() {
+				@Override
+				public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {
+					View view = liparam.view.findViewById(liparam.res.getIdentifier("battery",
+							"id", "com.android.systemui"));
+
+					if (view != null)
+						view.setVisibility(View.GONE);
+				}
+			});
+		} catch (Exception e) {
+			XposedBridge.log("Failed to hide battery: " + e.getMessage());
+		}
 	}
 }
