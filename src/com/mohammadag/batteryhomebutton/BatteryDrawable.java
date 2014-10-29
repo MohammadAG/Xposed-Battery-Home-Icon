@@ -2,6 +2,8 @@ package com.mohammadag.batteryhomebutton;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
+import android.animation.TimeAnimator;
+import android.animation.TimeAnimator.TimeListener;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.TargetApi;
@@ -15,7 +17,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.TypedValue;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 public class BatteryDrawable extends Drawable {
@@ -35,7 +36,7 @@ public class BatteryDrawable extends Drawable {
 	private boolean mScreenOn = true;
 	private boolean mEnablePercentage;
 
-	private ValueAnimator mAnimator;
+	private TimeAnimator mAnimator;
 
 	private ImageView mView;
 
@@ -113,7 +114,7 @@ public class BatteryDrawable extends Drawable {
 		mPaint.setAlpha(alpha);
 		canvas.drawArc(mRectF, mZeroAgnle, mAngle, false, mPaint);
 
-		if (mEnablePercentage) {
+		if (mEnablePercentage && mLevel != -1) {
 			int xPos = (canvas.getWidth() / 2);
 			int yPos = (int) ((canvas.getHeight() / 2) - ((mTextPaint.descent() + mTextPaint.ascent()) / 2)); 
 			canvas.drawText(String.valueOf(mLevel), xPos, yPos, mTextPaint);
@@ -130,18 +131,18 @@ public class BatteryDrawable extends Drawable {
 			return;
 
 		if (mCharging) {
-			mAnimator = ValueAnimator.ofInt(0, 360);
-			mAnimator.setDuration(6000L); // 360 frames at 60fps
-			mAnimator.addUpdateListener(new AnimatorUpdateListener() {
+			mAnimator = new TimeAnimator();
+			mAnimator.setTimeListener(new TimeListener() {
 				@Override
-				public void onAnimationUpdate(ValueAnimator animation) {
-					mZeroAgnle = -90 + (Integer) animation.getAnimatedValue();
+				public void onTimeUpdate(TimeAnimator arg0, long arg1, long arg2) {
+					if (mZeroAgnle == 270)
+						mZeroAgnle = -90;
+					else
+						mZeroAgnle++;
+
 					invalidate();
 				}
 			});
-			mAnimator.setRepeatCount(ValueAnimator.INFINITE);
-			mAnimator.setRepeatMode(ValueAnimator.RESTART);
-			mAnimator.setInterpolator(new LinearInterpolator());
 			mAnimator.start();
 		} else {
 			ValueAnimator animator = ValueAnimator.ofInt(mZeroAgnle, -90);
@@ -254,6 +255,6 @@ public class BatteryDrawable extends Drawable {
 
 	private void invalidate() {
 		if (mView != null)
-			mView.invalidate();
+			mView.postInvalidate();
 	}
 }
