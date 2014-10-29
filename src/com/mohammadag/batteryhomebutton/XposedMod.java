@@ -18,6 +18,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
+import de.robv.android.xposed.XposedHelpers.ClassNotFoundError;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResourcesParam;
 import de.robv.android.xposed.callbacks.XC_LayoutInflated;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
@@ -37,8 +38,25 @@ public class XposedMod implements IXposedHookLoadPackage, IXposedHookInitPackage
 			return;
 
 		mPrefs = new XSharedPreferences("com.mohammadag.batteryhomebutton");
+		boolean isLGDevice = Build.MANUFACTURER.toLowerCase(Locale.getDefault()).equals("lge");
+		Class<?> NavigationBarView = null;
 
-		Class<?> NavigationBarView = XposedHelpers.findClass("com.android.systemui.statusbar.phone.NavigationBarView", lpparam.classLoader);
+		if (isLGDevice) {
+			// User might be using CM or something on an LG manfucatured device
+			try {
+				NavigationBarView = 
+						XposedHelpers.findClass("com.android.systemui.statusbar.phone.LGNavigationBarView",
+								lpparam.classLoader);
+			} catch (ClassNotFoundError e) {
+				NavigationBarView = 
+						XposedHelpers.findClass("com.android.systemui.statusbar.phone.NavigationBarView",
+								lpparam.classLoader);
+			}
+		} else {
+			NavigationBarView = 
+					XposedHelpers.findClass("com.android.systemui.statusbar.phone.NavigationBarView",
+							lpparam.classLoader);
+		}
 
 		XC_MethodHook hook = new XC_MethodHook() {
 			@Override
@@ -81,17 +99,19 @@ public class XposedMod implements IXposedHookLoadPackage, IXposedHookInitPackage
 
 		XposedHelpers.findAndHookMethod(NavigationBarView, "onFinishInflate", hook);
 		XposedHelpers.findAndHookMethod(NavigationBarView, "reorient", hook);
-		XposedHelpers.findAndHookMethod(NavigationBarView, "getIcons", Resources.class, new XC_MethodHook() {
-			@Override
-			protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-				try {
-					XposedHelpers.setObjectField(param.thisObject, "mHomeIcon", mBatteryDrawable);
-					XposedHelpers.setObjectField(param.thisObject, "mHomeLandIcon", mBatteryDrawable);
-				} catch (NoSuchFieldError e) {
+		if (!isLGDevice) {
+			XposedHelpers.findAndHookMethod(NavigationBarView, "getIcons", Resources.class, new XC_MethodHook() {
+				@Override
+				protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+					try {
+						XposedHelpers.setObjectField(param.thisObject, "mHomeIcon", mBatteryDrawable);
+						XposedHelpers.setObjectField(param.thisObject, "mHomeLandIcon", mBatteryDrawable);
+					} catch (NoSuchFieldError e) {
 
+					}
 				}
-			}
-		});
+			});
+		}
 		XposedBridge.hookAllConstructors(NavigationBarView, new XC_MethodHook() {
 			@Override
 			protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -104,7 +124,7 @@ public class XposedMod implements IXposedHookLoadPackage, IXposedHookInitPackage
 			}
 		});
 
-		if (Build.MANUFACTURER.toLowerCase(Locale.getDefault()).equals("lge")) {
+		if (isLGDevice) {
 			try {
 				Class<?> LGHomeButton = XposedHelpers.findClass("com.lge.navigationbar.HomeButton", lpparam.classLoader);
 				XposedHelpers.findAndHookConstructor(LGHomeButton, Context.class, AttributeSet.class, int.class, boolean.class, new XC_MethodHook() {
@@ -114,6 +134,26 @@ public class XposedMod implements IXposedHookLoadPackage, IXposedHookInitPackage
 						createBatteryIfNeeded(view);
 
 						view.setImageDrawable(mBatteryDrawable);
+					}
+				});
+			} catch (Throwable t) {
+				XposedBridge.log("BatteryHomeIcon: Failed to apply LG hook: " + t.getMessage());
+				t.printStackTrace();
+			}
+
+			try {
+				Class<?> NavigationThemeResource = XposedHelpers.findClass("com.lge.navigationbar.NavigationThemeResource", lpparam.classLoader);
+				XposedHelpers.findAndHookMethod(NavigationThemeResource, "getThemeResource", View.class, new XC_MethodHook() {
+					@Override
+					protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+						try {
+							ImageView v = (ImageView)param.args[0];
+							if (v.getClass().getSimpleName().equalsIgnoreCase("HomeButton")) {
+								createBatteryIfNeeded(v);
+								param.setResult(mBatteryDrawable);
+							}							
+						} catch (NoSuchFieldError e) {
+						}
 					}
 				});
 			} catch (Throwable t) {
