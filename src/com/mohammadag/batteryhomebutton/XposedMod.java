@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -168,10 +169,13 @@ public class XposedMod implements IXposedHookLoadPackage, IXposedHookInitPackage
 		int padding = (int) (mPrefs.getFloat("padding", 0.7F) * 50);
 		int lPadding = (int) (mPrefs.getFloat("padding_landscape", 0.5F) * 50);
 		int width = (int) (mPrefs.getFloat("stroke_width", 0.1F) * 50);
+		int fontSize = (int) (mPrefs.getFloat("font_size", 0.5F) * 30);
 		mBatteryDrawable.setChargingAnimationEnabled(mPrefs.getBoolean("charging_animation", true));
 		mBatteryDrawable.setPercentageEnabled(mPrefs.getBoolean("battery_percentage", true));
 		mBatteryDrawable.setPadding(padding, lPadding);
 		mBatteryDrawable.setStrokeWidth(width);
+		mBatteryDrawable.setFontSize(fontSize);
+		mBatteryDrawable.setColor(mPrefs.getInt("circle_color", Color.WHITE), mPrefs.getInt("font_color", Color.WHITE));
 	}
 
 	private void createBatteryIfNeeded(ImageView view) {

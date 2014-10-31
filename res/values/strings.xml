@@ -17,6 +17,12 @@
     <string name="battery_percentage_summary">Show battery percentage in the center of the circle</string>
     <string name="hide_battery_icon_title">Hide battery icon</string>
     <string name="hide_battery_icon_summary">Hide the stock battery icon from the status bar. Toggling this requires a reboot</string>
+    <string name="circle_color_title">Circle color</string>
+    <string name="circle_color_summary">Color of the line</string>
+    <string name="font_color_title">Percentage color</string>
+    <string name="font_color_summary">Color of the percentage text</string>
+    <string name="font_size_title">Font size</string>
+    <string name="font_size_summary">Font size of the percentage text</string>
     <string name="menu_playstore">Play Store</string>
     <string name="menu_xposed">Xposed Modules</string>
 
@@ -24,5 +30,9 @@
         <item>@string/menu_playstore</item>
         <item>@string/menu_xposed</item>
     </string-array>
+
+    <!-- Color Picker -->
+    <string name="dialog_color_picker">Color Picker</string>
+    <string name="press_color_to_apply">Press on Color to apply</string>
 
 </resources>
