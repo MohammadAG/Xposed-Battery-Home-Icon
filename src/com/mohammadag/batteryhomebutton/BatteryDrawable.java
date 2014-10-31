@@ -29,6 +29,11 @@ public class BatteryDrawable extends Drawable {
 	private int mLandscapePadding = 20;
 	private int mWidth = 5;
 	private int mZeroAgnle = -90; // The starting angle, angle 0 is actually 90 degrees on a circle
+	//New preference [S]
+	private int mFontSize = 14;
+	private int mFontColor = Color.WHITE;
+	private int mCircleColor = Color.WHITE;
+	//New preference [E]
 	private RectF mRectF;
 
 	private boolean mCharging;
@@ -46,19 +51,21 @@ public class BatteryDrawable extends Drawable {
 
 		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mPaint.setStyle(Paint.Style.STROKE);
-		mPaint.setColor(Color.WHITE);
+		mPaint.setColor(mCircleColor);
 		mPaint.setStrokeWidth(mWidth);
 
 		mTextPaint = new Paint();
 		mTextPaint.setTextAlign(Paint.Align.CENTER);
-		mTextPaint.setColor(Color.WHITE);
-		mTextPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14,
+		mTextPaint.setColor(mFontColor);
+		mTextPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, mFontSize,
 				view.getResources().getDisplayMetrics()));
 	}
 
 	public void setBatteryLevel(int level) {
 		mLevel = level;
-
+		//is this okay?, percentage text only updated when touching home button
+		invalidate();
+		
 		ValueAnimator animator = ValueAnimator.ofInt(mAngle, (mLevel * 360) / 100);
 		animator.addUpdateListener(new AnimatorUpdateListener() {
 			@Override
@@ -114,7 +121,8 @@ public class BatteryDrawable extends Drawable {
 		mPaint.setAlpha(alpha);
 		canvas.drawArc(mRectF, mZeroAgnle, mAngle, false, mPaint);
 
-		if (mEnablePercentage && mLevel != -1) {
+		//don't draw the text if 100%
+		if (mEnablePercentage && mLevel != -1 && mLevel < 100) {
 			int xPos = (canvas.getWidth() / 2);
 			int yPos = (int) ((canvas.getHeight() / 2) - ((mTextPaint.descent() + mTextPaint.ascent()) / 2)); 
 			canvas.drawText(String.valueOf(mLevel), xPos, yPos, mTextPaint);
@@ -225,6 +233,23 @@ public class BatteryDrawable extends Drawable {
 		invalidateSelf();
 	}
 
+	//New preference [S]
+	public void setFontSize(int size) {
+		mFontSize = size;
+		mTextPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, mFontSize,
+				mView.getResources().getDisplayMetrics()));		
+		invalidateSelf();
+	}
+
+	public void setColor(int circleColor, int fontColor) {
+		mCircleColor = circleColor;
+		mFontColor = fontColor;
+		mPaint.setColor(mCircleColor);
+		mTextPaint.setColor(mFontColor);
+		invalidateSelf();
+	}
+	//New preference [E]
+	
 	@TargetApi(Build.VERSION_CODES.KITKAT)
 	public void setScreenOn(boolean screenOn) {
 		if (mScreenOn == screenOn)

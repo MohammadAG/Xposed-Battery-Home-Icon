@@ -36,4 +36,23 @@
         android:summary="@string/stroke_summary"
         android:title="@string/stroke_title" />
 
+    <net.margaritov.preference.colorpicker.ColorPickerPreference
+        alphaSlider="true"
+        android:defaultValue="@integer/COLOR_WHITE"
+        android:key="circle_color"
+        android:summary="@string/circle_color_summary"
+        android:title="@string/circle_color_title" />
+    
+    <net.margaritov.preference.colorpicker.ColorPickerPreference
+        alphaSlider="true"
+        android:defaultValue="@integer/COLOR_WHITE"
+        android:key="font_color"
+        android:summary="@string/font_color_summary"
+        android:title="@string/font_color_title" />
+
+    <com.mohammadag.batteryhomebutton.SliderPreference
+        android:defaultValue="0.5"
+        android:key="font_size"
+        android:summary="@string/font_size_summary"
+        android:title="@string/font_size_title" />    
 </PreferenceScreen>

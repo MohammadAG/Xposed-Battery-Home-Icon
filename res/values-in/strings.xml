@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Battery Home Icon</string>
+    <string name="pref_copyright_description">Copyright © 2014 Mohammad Abu-Garbeyyeh\nMelihat lebih aplk dan modul</string>
+    <string name="current_hsv_value">HSV:</string>
+    <string name="action_apply">Pilih</string>
+    <string name="padding_title">Jarak</string>
+    <string name="padding_summary">Jarak untuk mode portrait</string>
+    <string name="padding_landscape_title">Jarak landscape</string>
+    <string name="padding_landscape_summary">Jarak untuk mode landscape</string>
+    <string name="stroke_title">Ketebalan Lingkar</string>
+    <string name="stroke_summary">Ketebalan garis yang di gunakan pada lingkar</string>
+    <string name="charging_animation_title">Animasi pengisian</string>
+    <string name="charging_animation_summary">Izinkan animasi pengisian, ini mungkin mengharuskan anda untuk melepas dan memasang kabel pengisian untuk menerapkan</string>
+    <string name="battery_percentage_title">Persentase baterai</string>
+    <string name="battery_percentage_summary">Tampilkan persentase baterai di tengah lingkar</string>
+    <string name="hide_battery_icon_title">Sembunyikan ikon baterai</string>
+    <string name="hide_battery_icon_summary">Sembunyikan ikon baterai bawaan dari statusbar. Membutuhkan reboot</string>
+    <string name="circle_color_title">Warna lingkar</string>
+    <string name="circle_color_summary">Warna garis pada lingkar</string>
+    <string name="font_color_title">Warna persentase</string>
+    <string name="font_color_summary">Warna pada teks persentase</string>
+    <string name="font_size_title">Ukuran font</string>
+    <string name="font_size_summary">Ukuran font pada teks persentase</string>    
+    <string name="menu_playstore">Play Store</string>
+    <string name="menu_xposed">Xposed Modules</string>
+
+    <string-array name="my_apps" translatable="false">
+        <item>@string/menu_playstore</item>
+        <item>@string/menu_xposed</item>
+    </string-array>
+    <!-- Color Picker -->
+    <string name="dialog_color_picker">Pilih Warna</string>
+    <string name="press_color_to_apply">Sentuh pada warnah untuk memilih</string>
+</resources>
