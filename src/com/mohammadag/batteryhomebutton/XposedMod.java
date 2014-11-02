@@ -65,6 +65,7 @@ public class XposedMod implements IXposedHookLoadPackage, IXposedHookInitPackage
 					ImageView imageView = (ImageView) XposedHelpers.callMethod(param.thisObject, "getHomeButton");
 					createBatteryIfNeeded(imageView);
 					imageView.setImageDrawable(mBatteryDrawable);
+					mBatteryDrawable.setView(imageView);
 				} catch (NoSuchMethodError e) {
 					// ROMs with editable nav bar
 					try {
@@ -89,6 +90,7 @@ public class XposedMod implements IXposedHookLoadPackage, IXposedHookInitPackage
 						if (imageView != null) {
 							createBatteryIfNeeded(imageView);
 							imageView.setImageDrawable(mBatteryDrawable);
+							mBatteryDrawable.setView(imageView);
 						}
 					} catch (Exception e1) {
 
@@ -169,6 +171,7 @@ public class XposedMod implements IXposedHookLoadPackage, IXposedHookInitPackage
 		int lPadding = (int) (mPrefs.getFloat("padding_landscape", 0.5F) * 50);
 		int width = (int) (mPrefs.getFloat("stroke_width", 0.1F) * 50);
 		mBatteryDrawable.setChargingAnimationEnabled(mPrefs.getBoolean("charging_animation", true));
+		mBatteryDrawable.setPercentageFontSize(Integer.parseInt(mPrefs.getString("battery_percentage_size", "14")));
 		mBatteryDrawable.setPercentageEnabled(mPrefs.getBoolean("battery_percentage", true));
 		mBatteryDrawable.setPadding(padding, lPadding);
 		mBatteryDrawable.setStrokeWidth(width);

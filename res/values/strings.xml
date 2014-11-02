@@ -24,5 +24,7 @@
         <item>@string/menu_playstore</item>
         <item>@string/menu_xposed</item>
     </string-array>
+        <string name="battery_percentage_font_size_title">Percentage font size</string>
+        <string name="battery_percentage_font_size_summary">Font size used for battery percentage. A smaller font size is used for 100%</string>
 
 </resources>

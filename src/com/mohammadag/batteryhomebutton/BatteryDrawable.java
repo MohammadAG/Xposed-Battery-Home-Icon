@@ -7,6 +7,7 @@ import android.animation.TimeAnimator.TimeListener;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.TargetApi;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -16,12 +17,15 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 
 public class BatteryDrawable extends Drawable {
 	private Paint mPaint;
 	private Paint mTextPaint;
+
+	private Resources mRes;
 
 	private int mLevel = -1;
 	private int mAngle = 0;
@@ -39,10 +43,14 @@ public class BatteryDrawable extends Drawable {
 	private TimeAnimator mAnimator;
 
 	private ImageView mView;
+	private int mFontSize = 14;
+	private float mFontSizePx;
+	private float mFullFontSizePx;
 
 	public BatteryDrawable(ImageView view) {
 		super();
 		mView = view;
+		mRes = view.getResources();
 
 		mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mPaint.setStyle(Paint.Style.STROKE);
@@ -52,8 +60,10 @@ public class BatteryDrawable extends Drawable {
 		mTextPaint = new Paint();
 		mTextPaint.setTextAlign(Paint.Align.CENTER);
 		mTextPaint.setColor(Color.WHITE);
-		mTextPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14,
-				view.getResources().getDisplayMetrics()));
+		mFontSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, mFontSize,
+				mRes.getDisplayMetrics());
+		mFullFontSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, mFontSize--,
+				mRes.getDisplayMetrics());
 	}
 
 	public void setBatteryLevel(int level) {
@@ -115,6 +125,11 @@ public class BatteryDrawable extends Drawable {
 		canvas.drawArc(mRectF, mZeroAgnle, mAngle, false, mPaint);
 
 		if (mEnablePercentage && mLevel != -1) {
+			if (mLevel == 100) {
+				mTextPaint.setTextSize(mFullFontSizePx);
+			} else {
+				mTextPaint.setTextSize(mFontSizePx);
+			}
 			int xPos = (canvas.getWidth() / 2);
 			int yPos = (int) ((canvas.getHeight() / 2) - ((mTextPaint.descent() + mTextPaint.ascent()) / 2)); 
 			canvas.drawText(String.valueOf(mLevel), xPos, yPos, mTextPaint);
@@ -253,8 +268,29 @@ public class BatteryDrawable extends Drawable {
 		}
 	}
 
+	public void setView(ImageView view) {
+		mView = view;
+		if (view != null)
+			view.postInvalidate();
+	}
+
 	private void invalidate() {
 		if (mView != null)
 			mView.postInvalidate();
+		else
+			invalidateSelf();
+	}
+
+	public void setPercentageFontSize(int size) {
+		if (mFontSize == size)
+			return;
+
+		mFontSize = size;
+
+		mFontSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, size,
+				mRes.getDisplayMetrics());
+		mFullFontSizePx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, size - 1,
+				mRes.getDisplayMetrics());
+		invalidateSelf();
 	}
 }

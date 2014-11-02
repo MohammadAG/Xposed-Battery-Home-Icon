@@ -20,6 +20,13 @@
         android:summary="@string/battery_percentage_summary"
         android:title="@string/battery_percentage_title" />
 
+    <EditTextPreference
+        android:defaultValue="14"
+        android:inputType="number"
+        android:key="battery_percentage_size"
+        android:summary="@string/battery_percentage_font_size_summary"
+        android:title="@string/battery_percentage_font_size_title" />
+
     <com.mohammadag.batteryhomebutton.SliderPreference
         android:defaultValue="0.7"
         android:key="padding"
